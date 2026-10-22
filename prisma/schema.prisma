@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// Noticias de ESPN. Se sincronizan cada 5 minutos y nunca se borran,
+/// así que la tabla es también el archivo histórico.
+model NewsArticle {
+  /// Id de ESPN.
+  id          String   @id @db.VarChar(32)
+  headline    String   @db.VarChar(512)
+  description String?  @db.Text
+  byline      String?  @db.VarChar(255)
+  publishedAt DateTime @map("published_at")
+  url         String   @db.VarChar(1024)
+  imageUrl    String?  @map("image_url") @db.VarChar(1024)
+  imageAlt    String?  @map("image_alt") @db.VarChar(1024)
+  /// Primera vez que lo vimos en ESPN.
+  fetchedAt   DateTime @default(now()) @map("fetched_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([publishedAt])
+  @@map("news_articles")
+}

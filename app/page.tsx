@@ -1,69 +1,115 @@
-import Image from "next/image";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { NewsItem } from "@/components/NewsItem";
+import { RefreshNewsButton } from "@/components/RefreshNewsButton";
+import { RetryButton } from "@/components/RetryButton";
+import { SectionHeading } from "@/components/SectionHeading";
+import { ScoreStrip, ScoreStripSkeleton } from "@/components/ScoreStrip";
+import { SiteHeader } from "@/components/SiteHeader";
+import Link from "next/link";
+import { formatRelative } from "@/lib/format";
+import { getLatestNews } from "@/lib/news";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      <Suspense fallback={<ScoreStripSkeleton />}>
+        <ScoreStrip />
+      </Suspense>
+      <SiteHeader current="noticias" />
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-20 md:pb-10">
+        <h1 className="sr-only">Noticias de la NBA</h1>
+        <Suspense fallback={<NewsSkeleton />}>
+          <News />
+        </Suspense>
       </main>
+      <footer className="border-t border-line pb-14 md:pb-0">
+        <p className="mx-auto max-w-6xl px-4 py-3 text-xs text-muted">
+          Resultados, noticias, equipos y jugadores de la NBA. Noticias de ESPN.
+        </p>
+      </footer>
+    </>
+  );
+}
+
+async function News() {
+  let news;
+  try {
+    news = await getLatestNews();
+  } catch {
+    return (
+      <>
+        <SectionHeading title="Noticias" />
+        <p className="py-3 text-sm text-muted">
+          No se han podido cargar las noticias. <RetryButton />
+        </p>
+      </>
+    );
+  }
+
+  await connection();
+  const now = new Date();
+  const [lead, ...rest] = news.articles;
+
+  if (!lead) {
+    return (
+      <>
+        <SectionHeading title="Noticias" action={<RefreshNewsButton />} />
+        <p className="py-3 text-sm text-muted">Todavía no hay noticias de la NBA guardadas.</p>
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      <NewsItem article={lead} now={now} lead />
+      <section aria-labelledby="ultimas" className="flex flex-col gap-4">
+        <SectionHeading
+          id="ultimas"
+          title="Últimas noticias"
+          meta={news.syncedAt ? `Actualizado ${formatRelative(news.syncedAt, now)}` : undefined}
+          action={<RefreshNewsButton />}
+        />
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          {rest.map((article) => (
+            <NewsItem key={article.id} article={article} now={now} />
+          ))}
+        </div>
+        <Link
+          href="/noticias"
+          className="self-start border-t border-line pt-3 text-sm font-medium text-accent hover:underline"
+        >
+          Ver todas las noticias guardadas
+        </Link>
+      </section>
+    </div>
+  );
+}
+
+function NewsSkeleton() {
+  return (
+    <div aria-busy aria-label="Cargando noticias" className="flex flex-col gap-8">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8">
+        <div className="aspect-video rounded-sm bg-surface" />
+        <div className="flex flex-col justify-center gap-3">
+          <span className="h-7 w-full rounded-sm bg-surface" />
+          <span className="h-7 w-3/4 rounded-sm bg-surface" />
+          <span className="h-3 w-32 rounded-sm bg-surface" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <SectionHeading title="Últimas noticias" />
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="aspect-video rounded-sm bg-surface" />
+              <span className="h-3.5 w-full rounded-sm bg-surface" />
+              <span className="h-3.5 w-2/3 rounded-sm bg-surface" />
+              <span className="h-3 w-24 rounded-sm bg-surface" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
