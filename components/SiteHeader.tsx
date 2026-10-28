@@ -1,11 +1,13 @@
 import Link from "next/link";
 
-type SectionId = "partidos" | "noticias";
+type SectionId = "partidos" | "clasificacion" | "lideres" | "noticias";
 
 type Section = { id: SectionId; label: string; href: string };
 
 const sections: Section[] = [
   { id: "partidos", label: "Partidos", href: "/partidos" },
+  { id: "clasificacion", label: "Clasificación", href: "/clasificacion" },
+  { id: "lideres", label: "Líderes", href: "/lideres" },
   { id: "noticias", label: "Noticias", href: "/" },
 ];
 
@@ -39,17 +41,27 @@ function NavItem({
   );
 }
 
-export function SiteHeader({ current }: { current: SectionId }) {
+type Props = {
+  /** Sección activa; sin ella no se marca ninguna (p. ej. en la ficha de un jugador). */
+  current?: SectionId;
+};
+
+export function SiteHeader({ current }: Props) {
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-line bg-background">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-10 px-4">
-          <Link
-            href="/"
-            className="font-score text-2xl font-bold uppercase leading-none tracking-wide"
-          >
-            Court<span className="text-accent">View</span>
-          </Link>
+          <div className="flex items-baseline gap-3">
+            <Link
+              href="/"
+              className="font-score text-2xl font-bold uppercase leading-none tracking-wide"
+            >
+              Court<span className="text-accent">View</span>
+            </Link>
+            <span className="border-l border-line pl-3 font-score text-xl font-medium uppercase leading-none tracking-wide text-muted">
+              NBA
+            </span>
+          </div>
           <nav aria-label="Secciones" className="hidden md:block">
             <ul className="flex">
               {sections.map((section) => (

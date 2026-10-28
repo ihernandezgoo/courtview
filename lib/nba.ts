@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { NBA_API } from "@/lib/api";
+import { nbaApi } from "@/lib/api";
 import type {
   GameDetail,
   Injury,
@@ -28,7 +28,7 @@ type EspnCompetitor = {
   };
 };
 
-type EspnEvent = {
+export type EspnEvent = {
   id: string;
   date: string;
   status: {
@@ -61,7 +61,7 @@ type EspnNews = {
     description?: string;
     byline?: string;
     published: string;
-    links: { web: { href: string } };
+    links?: { web?: { href: string } };
     images?: EspnNewsImage[];
   }[];
 };
@@ -80,12 +80,13 @@ function pickNewsImage(
     images.find((i) => i.name?.includes("16x9"));
   if (!image) return null;
   return {
-    url: image.url.replace(/^http:/, "https:"),
+    // Algunas fotos llevan espacios en el nombre ("261022 rpo.jpg").
+    url: image.url.replace(/^http:/, "https:").replaceAll(" ", "%20"),
     alt: image.alt || image.caption || headline,
   };
 }
 
-async function getJson<T>(url: string): Promise<T> {
+export async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`ESPN respondió ${response.status} en ${url}`);
@@ -107,7 +108,7 @@ function toTeam(competitor: EspnCompetitor, hasScore: boolean): GameTeam {
   };
 }
 
-function toStatus(status: EspnEvent["status"]): GameStatus {
+export function toStatus(status: EspnEvent["status"]): GameStatus {
   if (status.type.name === "STATUS_POSTPONED") return { state: "postponed" };
   switch (status.type.state) {
     case "pre":
@@ -124,7 +125,7 @@ function toStatus(status: EspnEvent["status"]): GameStatus {
   }
 }
 
-function toGame(event: EspnEvent): Game {
+export function toGame(event: EspnEvent): Game {
   const status = toStatus(event.status);
   const hasScore = status.state === "live" || status.state === "final";
   const competitors = event.competitions[0].competitors;
@@ -144,7 +145,7 @@ export async function getScoreboard(date?: string): Promise<Scoreboard> {
   "use cache";
   cacheLife("seconds");
 
-  const url = date ? `${NBA_API.scoreboard}?dates=${date}` : NBA_API.scoreboard;
+  const url = date ? `${nbaApi().scoreboard}?dates=${date}` : nbaApi().scoreboard;
   const data = await getJson<EspnScoreboard>(url);
   // Con `?dates=` ESPN no devuelve `day`: la jornada es la que hemos pedido.
   const day = date
@@ -165,21 +166,33 @@ export async function getScoreboard(date?: string): Promise<Scoreboard> {
   return { day, games, nextGameDay, gameDays };
 }
 
-/** Sin caché: lo llama la sincronización (`lib/news.ts`), que guarda el resultado en BD. */
+/** Sin caché: la pone quien la llama (`lib/news.ts`). */
 export async function fetchNews(limit = 50): Promise<NewsArticle[]> {
-  const data = await getJson<EspnNews>(`${NBA_API.news}?limit=${limit}`);
-  return data.articles.map((article) => ({
-    id: String(article.id),
-    headline: article.headline,
-    description: article.description ?? null,
-    byline: article.byline ?? null,
-    publishedAt: article.published,
-    url: article.links.web.href.replace(/^http:/, "https:"),
-    image: pickNewsImage(article.images, article.headline),
-  }));
+  return fetchNewsFrom(nbaApi().news, limit);
 }
 
-type EspnSummaryCompetitor = {
+/** Noticias de cualquier endpoint `/news` de ESPN. */
+export async function fetchNewsFrom(newsUrl: string, limit: number): Promise<NewsArticle[]> {
+  const data = await getJson<EspnNews>(`${newsUrl}?limit=${limit}`);
+  // Los vídeos sueltos no tienen página web a la que enlazar.
+  return data.articles.flatMap((article) => {
+    const href = article.links?.web?.href;
+    if (!href) return [];
+    return [
+      {
+        id: String(article.id),
+        headline: article.headline,
+        description: article.description ?? null,
+        byline: article.byline ?? null,
+        publishedAt: article.published,
+        url: href.replace(/^http:/, "https:"),
+        image: pickNewsImage(article.images, article.headline),
+      },
+    ];
+  });
+}
+
+export type EspnSummaryCompetitor = {
   homeAway: "home" | "away";
   winner?: boolean;
   score?: string;
@@ -221,13 +234,13 @@ type EspnLeaders = {
     name: string;
     leaders?: {
       displayValue: string;
-      athlete: { displayName: string };
+      athlete: { id: string; displayName: string };
       statistics?: { abbreviation: string; displayValue: string }[];
     }[];
   }[];
 };
 
-type EspnInjuries = {
+export type EspnInjuries = {
   team: { id: string };
   injuries: {
     status: string;
@@ -277,7 +290,7 @@ function pickLogo(team: EspnSummaryCompetitor["team"], rel: string) {
   return team.logos?.find((logo) => logo.rel.includes(rel))?.href ?? null;
 }
 
-function toSummaryTeam(competitor: EspnSummaryCompetitor, hasScore: boolean): GameTeam {
+export function toSummaryTeam(competitor: EspnSummaryCompetitor, hasScore: boolean): GameTeam {
   const logo = pickLogo(competitor.team, "default");
   return {
     id: competitor.team.id,
@@ -293,11 +306,11 @@ function toSummaryTeam(competitor: EspnSummaryCompetitor, hasScore: boolean): Ga
 }
 
 /** ESPN usa `""` o `"--"` para lo que no hay. */
-function statValue(value: string | undefined) {
+export function statValue(value: string | undefined) {
   return value && value !== "--" ? value : null;
 }
 
-function toStatLine(keys: string[], values: string[]): StatLine {
+export function toStatLine(keys: string[], values: string[]): StatLine {
   return Object.fromEntries(keys.map((key, i) => [key, statValue(values[i])]));
 }
 
@@ -334,9 +347,11 @@ const INJURY_STATUS: Record<string, string> = {
   Doubtful: "Muy dudoso",
   Probable: "Probable",
   Suspension: "Sancionado",
+  "Injured Reserve": "Lista de lesionados",
+  "Physically Unable to Perform": "No apto físicamente",
 };
 
-function toInjuries(entry: EspnInjuries): TeamInjuries {
+export function toInjuries(entry: EspnInjuries): TeamInjuries {
   return {
     teamId: entry.team.id,
     injuries: entry.injuries.map(
@@ -344,8 +359,11 @@ function toInjuries(entry: EspnInjuries): TeamInjuries {
         athlete: injury.athlete.displayName,
         position: injury.athlete.position?.abbreviation ?? null,
         status: INJURY_STATUS[injury.status] ?? injury.status,
+        // ESPN rellena lo que no sabe con "Not Specified" / "Undisclosed".
         detail:
-          [injury.details?.type, injury.details?.side].filter(Boolean).join(", ") || null,
+          [injury.details?.type, injury.details?.side]
+            .filter((part) => part && part !== "Not Specified" && part !== "Undisclosed")
+            .join(", ") || null,
       }),
     ),
   };
@@ -365,6 +383,7 @@ function toLeaders(entry: EspnLeaders): TeamLeaders {
       return [
         {
           category: category.name,
+          athleteId: leader.athlete.id,
           athlete: leader.athlete.displayName,
           value: leader.displayValue,
           detail: detail || null,
@@ -375,7 +394,7 @@ function toLeaders(entry: EspnLeaders): TeamLeaders {
 }
 
 /** "LAL lead series 1-0" → "LAL lidera la serie 1-0". */
-function translateSeries(summary: string) {
+export function translateSeries(summary: string) {
   return summary
     .replace(/^(\S+) leads? series (.+)$/, "$1 lidera la serie $2")
     .replace(/^(\S+) wins? series (.+)$/, "$1 gana la serie $2")
@@ -387,7 +406,7 @@ function translateSeries(summary: string) {
 export async function getGameDetail(gameId: string): Promise<GameDetail | null> {
   "use cache";
 
-  const response = await fetch(NBA_API.summary(gameId));
+  const response = await fetch(nbaApi().summary(gameId));
   if (response.status === 404 || response.status === 400) {
     cacheLife("hours");
     return null;

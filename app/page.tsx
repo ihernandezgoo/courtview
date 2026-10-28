@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { NewsItem } from "@/components/NewsItem";
@@ -10,7 +11,11 @@ import Link from "next/link";
 import { formatRelative } from "@/lib/format";
 import { getLatestNews } from "@/lib/news";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "NBA · CourtView",
+};
+
+export default function NbaHome() {
   return (
     <>
       <Suspense fallback={<ScoreStripSkeleton />}>
@@ -55,7 +60,7 @@ async function News() {
     return (
       <>
         <SectionHeading title="Noticias" action={<RefreshNewsButton />} />
-        <p className="py-3 text-sm text-muted">Todavía no hay noticias de la NBA guardadas.</p>
+        <p className="py-3 text-sm text-muted">ESPN no tiene ahora mismo noticias de la NBA.</p>
       </>
     );
   }
@@ -67,7 +72,7 @@ async function News() {
         <SectionHeading
           id="ultimas"
           title="Últimas noticias"
-          meta={news.syncedAt ? `Actualizado ${formatRelative(news.syncedAt, now)}` : undefined}
+          meta={`Actualizado ${formatRelative(news.fetchedAt, now)}`}
           action={<RefreshNewsButton />}
         />
         <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,7 +84,7 @@ async function News() {
           href="/noticias"
           className="self-start border-t border-line pt-3 text-sm font-medium text-accent hover:underline"
         >
-          Ver todas las noticias guardadas
+          Ver todas las noticias
         </Link>
       </section>
     </div>

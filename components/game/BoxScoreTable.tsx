@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { TeamMark } from "@/components/TeamMark";
 import { formatPct, formatSigned, formatStat, parseMadeAttempted } from "@/lib/format";
 import type { BoxScorePlayer, StatLine, TeamBoxScore } from "@/types/boxscore";
@@ -61,8 +62,10 @@ function columnMaxima(players: BoxScorePlayer[]) {
 function PlayerName({ player }: { player: BoxScorePlayer }) {
   return (
     <span className="flex items-baseline gap-1.5" title={player.name}>
-      <span className="font-medium md:hidden">{player.shortName}</span>
-      <span className="hidden font-medium md:inline">{player.name}</span>
+      <Link href={`/jugadores/${player.id}`} className="font-medium hover:text-accent hover:underline">
+        <span className="md:hidden">{player.shortName}</span>
+        <span className="hidden md:inline">{player.name}</span>
+      </Link>
       {player.position && <span className="text-[11px] text-subtle">{player.position}</span>}
       {player.ejected && (
         <abbr title="Expulsado" className="text-[11px] font-semibold text-loss no-underline">

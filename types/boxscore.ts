@@ -31,6 +31,7 @@ export type TeamStats = {
 export type GameLeader = {
   /** `points`, `rebounds`, `assists` o, antes del partido, `pointsPerGame`… */
   category: string;
+  athleteId: string;
   athlete: string;
   value: string;
   /** Resumen del resto de su línea: "FG 7/18 · FT 9/9". */

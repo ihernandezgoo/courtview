@@ -41,7 +41,7 @@ export function TeamMark({ team }: Props) {
           style={team.color ? { backgroundColor: `#${team.color}` } : undefined}
         />
       )}
-      <span className="w-10">{team.abbreviation}</span>
+      <span className="min-w-10">{team.abbreviation}</span>
     </span>
   );
 }

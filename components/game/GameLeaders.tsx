@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { TeamMark } from "@/components/TeamMark";
 import { EMPTY_VALUE } from "@/lib/format";
-import type { GameDetail, GameLeader } from "@/types/boxscore";
+import type { GameLeader, GameDetail } from "@/types/boxscore";
 
 const CATEGORY_LABELS: Record<string, string> = {
   points: "Puntos",
@@ -19,7 +20,12 @@ function LeaderCell({ leader }: { leader: GameLeader | undefined }) {
         <span className="font-score text-2xl font-bold tabular-nums leading-none">
           {leader.value}
         </span>
-        <span className="min-w-0 truncate text-[13px] font-medium">{leader.athlete}</span>
+        <Link
+          href={`/jugadores/${leader.athleteId}`}
+          className="min-w-0 truncate text-[13px] font-medium hover:text-accent hover:underline"
+        >
+          {leader.athlete}
+        </Link>
       </div>
       {leader.detail && (
         <p className="mt-0.5 text-xs tabular-nums text-muted">{leader.detail}</p>

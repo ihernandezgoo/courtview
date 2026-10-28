@@ -69,6 +69,32 @@ export function formatDay(iso: string, timeZone = DEFAULT_TIME_ZONE) {
   return formatInTimeZone(iso, timeZone, "EEEE d MMM", { locale: es });
 }
 
+/** "sáb 24 oct" en la zona del usuario. */
+export function formatShortDate(iso: string, timeZone = DEFAULT_TIME_ZONE) {
+  return formatInTimeZone(iso, timeZone, "EEE d MMM", { locale: es });
+}
+
+/** "1 jugada", "6 jugadas". */
+export function formatCount(count: number, singular: string, plural: string) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+/** "1 partido", "14 partidos". */
+export function formatGameCount(count: number) {
+  return formatCount(count, "partido", "partidos");
+}
+
+/** Número con separador de miles y los decimales que traiga: `1.485`, `3,5`. */
+export function formatNumber(value: number) {
+  return value.toLocaleString("es-ES");
+}
+
+/** "3:30" o "27:36" → segundos, para comparar tiempos de posesión. */
+export function parseClock(value: string | null | undefined) {
+  const match = value?.match(/^(\d+):(\d{2})$/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
 /** Fecha local del usuario como `YYYY-MM-DD`, para agrupar por día. */
 export function toLocalDayKey(iso: string, timeZone = DEFAULT_TIME_ZONE) {
   return formatInTimeZone(iso, timeZone, "yyyy-MM-dd");
@@ -92,6 +118,7 @@ export function formatRecord(record: string | null) {
   return record ?? EMPTY_VALUE;
 }
 
+/** `Q3`, `PR`, `2PR`. */
 function formatPeriod(period: number) {
   if (period <= 4) return `Q${period}`;
   const overtime = period - 4;
@@ -155,8 +182,124 @@ export function formatGameStatus(
       if (status.halftime) return "Descanso";
       return `${formatPeriod(status.period)} ${status.clock}`;
     case "final":
-      return status.period > 4 ? `Final/${formatPeriod(status.period)}` : "Final";
+      return status.period > 4
+        ? `Final/${formatPeriod(status.period)}`
+        : "Final";
     case "postponed":
       return "Aplazado";
   }
+}
+
+/** Promedio con 1 decimal: `27.4`. */
+export function formatAverage(value: number | null) {
+  return value === null ? EMPTY_VALUE : value.toFixed(1);
+}
+
+/** Promedio con signo: `+8.3`, `-3.0`. */
+export function formatSignedAverage(value: number | null) {
+  if (value === null) return EMPTY_VALUE;
+  const fixed = Math.abs(value).toFixed(1);
+  if (Number(fixed) === 0) return "0.0";
+  return value > 0 ? `+${fixed}` : `-${fixed}`;
+}
+
+/** Porcentaje de victorias como en las clasificaciones: `.750`, `1.000`. */
+export function formatWinPct(value: number) {
+  const fixed = value.toFixed(3);
+  return fixed.startsWith("0") ? fixed.slice(1) : fixed;
+}
+
+/** Partidos de diferencia con el líder: `—` para el propio líder, `3.5`. */
+export function formatGamesBehind(value: number) {
+  return value === 0 ? EMPTY_VALUE : value.toFixed(1);
+}
+
+/** Racha: `V4`, `D2`. */
+export function formatStreak(value: number | null) {
+  if (!value) return EMPTY_VALUE;
+  return value > 0 ? `V${value}` : `D${-value}`;
+}
+
+/** Valor de un líder estadístico según su tipo: `36.0`, `47.3%`, `144`. */
+export function formatLeaderValue(value: number, kind: "average" | "percent" | "total") {
+  switch (kind) {
+    case "average":
+      return value.toFixed(1);
+    case "percent":
+      return `${value.toFixed(1)}%`;
+    case "total":
+      return String(Math.round(value));
+  }
+}
+
+/** Altura en metros a partir de pulgadas: `2,03 m`. */
+export function formatHeight(inches: number | null) {
+  if (inches === null) return EMPTY_VALUE;
+  return `${((inches * 2.54) / 100).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m`;
+}
+
+/** Peso en kilos a partir de libras: `104 kg`. */
+export function formatWeight(lbs: number | null) {
+  return lbs === null ? EMPTY_VALUE : `${Math.round(lbs * 0.453592)} kg`;
+}
+
+/** "28 feb 1999" a partir de `YYYY-MM-DD`. */
+export function formatBirthDate(day: string) {
+  return formatInTimeZone(`${day}T12:00:00Z`, "UTC", "d MMM yyyy", { locale: es });
+}
+
+/** "Draft 2018: 1.ª ronda, n.º 3 (ATL)". */
+export function formatDraft(draft: { year: number; round: number; pick: number; team: string | null } | null) {
+  if (!draft) return "Sin draft";
+  const team = draft.team ? ` (${draft.team})` : "";
+  return `Draft ${draft.year}: ${draft.round}.ª ronda, n.º ${draft.pick}${team}`;
+}
+
+/** "Novato", "9.ª temporada". */
+export function formatExperience(season: number | null) {
+  if (season === null) return EMPTY_VALUE;
+  return season === 1 ? "Novato" : `${season}.ª temporada`;
+}
+
+/**
+ * Porcentaje que ESPN ya da sobre 100 (`"48.4"`): `48.4%`. ESPN pone `0.0`
+ * también cuando no hubo intentos: si se pasan los anotados-intentados
+ * (`"0-0"`, `"0.0-0.0"`), sin intentos sale la raya.
+ */
+export function formatPctValue(value: string | null | undefined, madeAttempted?: string | null) {
+  const attempts = madeAttempted?.match(/-([\d.]+)$/)?.[1];
+  if (attempts !== undefined && Number(attempts) === 0) return EMPTY_VALUE;
+  const n = value === null || value === undefined ? NaN : Number(value);
+  return Number.isNaN(n) ? EMPTY_VALUE : `${n.toFixed(1)}%`;
+}
+
+/** Puesto en la liga: "1.º", "52.º (empate)". */
+export function formatRank(rank: { rank: number; tied: boolean }) {
+  return `${rank.rank}.º${rank.tied ? " (empate)" : ""}`;
+}
+
+/** Resultado desde el punto de vista del jugador: `V 136-129`, `D 98-104`. */
+export function formatGameResult(won: boolean | null, own: number | null, opponent: number | null) {
+  if (won === null || own === null || opponent === null) return EMPTY_VALUE;
+  return `${won ? "V" : "D"} ${own}-${opponent}`;
+}
+
+const POSITIONS: Record<string, string> = {
+  PG: "Base",
+  SG: "Escolta",
+  SF: "Alero",
+  PF: "Ala-pívot",
+  C: "Pívot",
+  G: "Exterior",
+  F: "Alero",
+  "G-F": "Escolta-alero",
+  "F-G": "Alero-escolta",
+  "F-C": "Ala-pívot",
+  "C-F": "Pívot",
+};
+
+/** Nombre de la posición en español: `PG` → "Base". */
+export function formatPosition(abbreviation: string | null) {
+  if (!abbreviation) return null;
+  return POSITIONS[abbreviation] ?? abbreviation;
 }

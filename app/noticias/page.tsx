@@ -10,16 +10,16 @@ import { getNewsArchive } from "@/lib/news";
 import type { NewsArticle } from "@/types/news";
 
 export const metadata: Metadata = {
-  title: "Archivo de noticias · CourtView",
+  title: "Noticias · CourtView",
 };
 
-export default function NewsArchivePage({ searchParams }: PageProps<"/noticias">) {
+export default function NewsArchivePage() {
   return (
     <>
       <SiteHeader current="noticias" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-6 pb-20 md:pb-10">
         <div className="mb-6 flex items-baseline justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">Archivo de noticias</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Noticias</h1>
           <div className="flex items-baseline gap-4">
             <RefreshNewsButton />
             <Link href="/" className="text-sm text-accent hover:underline">
@@ -28,51 +28,29 @@ export default function NewsArchivePage({ searchParams }: PageProps<"/noticias">
           </div>
         </div>
         <Suspense fallback={<ArchiveSkeleton />}>
-          <Archive searchParams={searchParams} />
+          <Archive />
         </Suspense>
       </main>
     </>
   );
 }
 
-function parsePage(value: string | string[] | undefined) {
-  const page = Number(Array.isArray(value) ? value[0] : value);
-  return Number.isInteger(page) && page > 0 ? page : 1;
-}
-
-async function Archive({ searchParams }: Pick<PageProps<"/noticias">, "searchParams">) {
-  const page = parsePage((await searchParams).pagina);
-
+async function Archive() {
   let archive;
   try {
-    archive = await getNewsArchive(page);
+    archive = await getNewsArchive();
   } catch {
     return (
       <p className="py-3 text-sm text-muted">
-        No se ha podido leer el archivo de noticias. <RetryButton />
+        No se han podido cargar las noticias de ESPN. <RetryButton />
       </p>
     );
   }
 
-  const { articles, total, pageCount } = archive;
-
-  if (total === 0) {
-    return (
-      <p className="py-3 text-sm text-muted">
-        Todavía no hay noticias guardadas. Se sincronizan con ESPN cada 5 minutos.
-      </p>
-    );
-  }
+  const { articles } = archive;
 
   if (articles.length === 0) {
-    return (
-      <p className="py-3 text-sm text-muted">
-        La página {page} no existe; el archivo tiene {pageCount}.{" "}
-        <Link href="/noticias" className="text-accent hover:underline">
-          Ir a la primera
-        </Link>
-      </p>
-    );
+    return <p className="py-3 text-sm text-muted">ESPN no tiene ahora mismo noticias de la NBA.</p>;
   }
 
   return (
@@ -91,7 +69,6 @@ async function Archive({ searchParams }: Pick<PageProps<"/noticias">, "searchPar
           </ol>
         </section>
       ))}
-      <Pagination page={page} pageCount={pageCount} total={total} />
     </div>
   );
 }
@@ -128,33 +105,6 @@ function ArchiveRow({ article }: { article: NewsArticle }) {
         <span className="text-xs text-muted">{article.byline ?? "ESPN"}</span>
       </div>
     </li>
-  );
-}
-
-function Pagination({ page, pageCount, total }: { page: number; pageCount: number; total: number }) {
-  return (
-    <nav
-      aria-label="Páginas del archivo"
-      className="flex items-center justify-between gap-4 border-t border-line pt-3 text-sm"
-    >
-      {page > 1 ? (
-        <Link href={`/noticias?pagina=${page - 1}`} className="text-accent hover:underline">
-          Más recientes
-        </Link>
-      ) : (
-        <span />
-      )}
-      <span className="text-xs text-muted tabular-nums">
-        Página {page} de {pageCount} · {total} noticias
-      </span>
-      {page < pageCount ? (
-        <Link href={`/noticias?pagina=${page + 1}`} className="text-accent hover:underline">
-          Anteriores
-        </Link>
-      ) : (
-        <span />
-      )}
-    </nav>
   );
 }
 

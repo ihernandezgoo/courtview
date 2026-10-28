@@ -1,17 +1,16 @@
 "use server";
 
 import { updateTag } from "next/cache";
-import { NEWS_CACHE_TAG, syncNews } from "@/lib/news";
+import { NEWS_CACHE_TAG } from "@/lib/news";
 
 export type RefreshNewsResult = { ok: true } | { ok: false; error: string };
 
-/** Botón "Actualizar": sincroniza con ESPN y muestra el resultado sin esperar a la caché. */
+/** Botón "Actualizar": descarta la caché para que la próxima carga pida a ESPN. */
 export async function refreshNews(): Promise<RefreshNewsResult> {
   try {
-    await syncNews();
+    updateTag(NEWS_CACHE_TAG);
   } catch {
-    return { ok: false, error: "No se ha podido conectar con ESPN" };
+    return { ok: false, error: "No se ha podido actualizar" };
   }
-  updateTag(NEWS_CACHE_TAG);
   return { ok: true };
 }

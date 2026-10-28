@@ -1,23 +1,35 @@
-const ESPN_NBA_BASE_URL =
-  "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
+import "server-only";
 
-export const NBA_API = {
-  scoreboard: `${ESPN_NBA_BASE_URL}/scoreboard`,
-  news: `${ESPN_NBA_BASE_URL}/news`,
-  teams: `${ESPN_NBA_BASE_URL}/teams`,
-  team: (team: string) =>
-    `${ESPN_NBA_BASE_URL}/teams/${encodeURIComponent(team)}`,
-  summary: (gameId: string) =>
-    `${ESPN_NBA_BASE_URL}/summary?event=${encodeURIComponent(gameId)}`,
-} as const;
+/**
+ * La raíz de la API viene de `ESPN_API_URL` (ver `.env.example`). Al no
+ * llevar `NEXT_PUBLIC_`, nunca llega al navegador; `server-only` hace que el
+ * build falle si algún componente de cliente importa este módulo.
+ */
+function apiRoot() {
+  const url = process.env.ESPN_API_URL;
+  if (!url) throw new Error("Falta ESPN_API_URL en las variables de entorno (ver .env.example)");
+  return url.replace(/\/+$/, "");
+}
 
-const ESPN_NCAA_BASE_URL = 
- "http://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard"
+const NBA_PATH = "basketball/nba";
 
-export const NCAA_API = {
-  scoreboard: `${ESPN_NCAA_BASE_URL}/scoreboard`,
-  news: `${ESPN_NCAA_BASE_URL}/news`,
-  teams: `${ESPN_NCAA_BASE_URL}/teams`,
-  team: (team: string) =>
-    `${ESPN_NCAA_BASE_URL}/teams/${encodeURIComponent(team)}`,
-} as const;
+/** Endpoints de ESPN de la NBA. Función y no constante: la variable de entorno se lee al hacer la petición. */
+export function nbaApi() {
+  const root = apiRoot();
+  const site = `${root}/site/v2/sports/${NBA_PATH}`;
+  const athlete = (id: string) => `${root}/common/v3/sports/${NBA_PATH}/athletes/${encodeURIComponent(id)}`;
+  return {
+    scoreboard: `${site}/scoreboard`,
+    news: `${site}/news`,
+    summary: (gameId: string) => `${site}/summary?event=${encodeURIComponent(gameId)}`,
+    /** Con `level=3` agrupa por conferencia y división. */
+    standings: `${root}/v2/sports/${NBA_PATH}/standings?level=3`,
+    leaders: `${root}/site/v3/sports/${NBA_PATH}/leaders`,
+    /** Ficha: datos personales, equipo y resumen de la temporada. */
+    athlete,
+    /** Partidos de la temporada actual. */
+    athleteGameLog: (id: string) => `${athlete(id)}/gamelog`,
+    /** Promedios y totales por temporada. */
+    athleteStats: (id: string) => `${athlete(id)}/stats`,
+  } as const;
+}

@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
   cacheComponents: true,
+  // La portada de la NBA estaba en /nba cuando había más ligas.
+  async redirects() {
+    return [{ source: "/nba", destination: "/", permanent: true }];
+  },
   images: {
     remotePatterns: [
       // Fotos de las noticias
@@ -14,14 +18,21 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "a.espncdn.com",
-        pathname: "/i/teamlogos/nba/**",
+        pathname: "/i/teamlogos/**",
+        search: "",
+      },
+      // Fotos de los jugadores
+      {
+        protocol: "https",
+        hostname: "a.espncdn.com",
+        pathname: "/i/headshots/nba/**",
         search: "",
       },
       // Imágenes generadas de las previas (llevan `?templateId=...`)
       {
         protocol: "https",
         hostname: "s.espncdn.com",
-        pathname: "/stitcher/sports/basketball/nba/**",
+        pathname: "/stitcher/sports/**",
       },
     ],
   },
