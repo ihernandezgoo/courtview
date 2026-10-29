@@ -1,55 +1,132 @@
 @import "tailwindcss";
 
+/* `dark:` sigue al tema elegido, no solo al del sistema. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
 /*
- * Tokens de diseño. Base de grises fríos, un único acento y colores
- * semánticos (live, win, loss, leader). Ver CLAUDE.md → Sistema visual.
+ * Tokens de diseño. Estilo de liga: base oscura neutra, cabecera negra fija,
+ * superficies en tarjetas con radio de 12 px y un único acento rojo anaranjado.
+ * Colores semánticos (live, win, loss, leader). Ver CLAUDE.md → Sistema visual.
  */
 :root {
-  --background: #ffffff;
-  --surface: #f5f6f8;
-  --foreground: #14171c;
-  --muted: #5b6370;
-  --subtle: #8a919c;
-  --line: #e3e6ea;
-  --accent: #c2410c;
+  color-scheme: light;
+  --background: #f4f4f5;
+  --card: #ffffff;
+  --surface: #ececee;
+  --foreground: #161616;
+  --muted: #5a616d;
+  --subtle: #7b828e;
+  --line: #e2e3e6;
+  --accent: #e02a00;
+  --accent-foreground: #ffffff;
   --live: #d42a2a;
-  --win: #2c7a4b;
-  --loss: #b0433a;
-  --leader: #fff4e5;
+  --win: #1f8a4c;
+  --loss: #c2392f;
+  --leader: #fff0ea;
+
+  /* La cabecera y el carrusel son siempre oscuros, también en modo claro. */
+  --chrome: #121212;
+  --chrome-raised: #1e1e1e;
+  --chrome-foreground: #fafafa;
+  --chrome-muted: #9aa3b2;
+  --chrome-line: #2b2b2b;
+}
+
+/*
+ * Modo oscuro. `data-theme` lo pone el script de `app/layout.tsx` antes de
+ * pintar (preferencia guardada o, si no hay, la del sistema). El bloque con
+ * media query solo cubre el caso sin JavaScript; mantener los dos iguales.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #161616;
+  --card: #1f1f1f;
+  --surface: #2a2a2a;
+  --foreground: #f5f5f5;
+  --muted: #a0a8b6;
+  --subtle: #7d8592;
+  --line: #2e2e2e;
+  --accent: #ff4d1f;
+  --accent-foreground: #ffffff;
+  --live: #ff5a4f;
+  --win: #4cc27e;
+  --loss: #f0675d;
+  --leader: #36221a;
+
+  --chrome: #0d0d0d;
+  --chrome-raised: #1a1a1a;
+  --chrome-line: #262626;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0e1014;
-    --surface: #161a20;
-    --foreground: #e9ecf0;
-    --muted: #9aa2ae;
-    --subtle: #727a86;
-    --line: #262b33;
-    --accent: #fb8a4c;
-    --live: #f26b6b;
-    --win: #63b583;
-    --loss: #e07b72;
-    --leader: #2a2118;
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --background: #161616;
+    --card: #1f1f1f;
+    --surface: #2a2a2a;
+    --foreground: #f5f5f5;
+    --muted: #a0a8b6;
+    --subtle: #7d8592;
+    --line: #2e2e2e;
+    --accent: #ff4d1f;
+    --accent-foreground: #ffffff;
+    --live: #ff5a4f;
+    --win: #4cc27e;
+    --loss: #f0675d;
+    --leader: #36221a;
+
+    --chrome: #0d0d0d;
+    --chrome-raised: #1a1a1a;
+    --chrome-line: #262626;
   }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-card: var(--card);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-live: var(--live);
   --color-win: var(--win);
   --color-loss: var(--loss);
   --color-leader: var(--leader);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-score: var(--font-barlow-condensed);
-  --radius-sm: 4px;
+  --color-chrome: var(--chrome);
+  --color-chrome-raised: var(--chrome-raised);
+  --color-chrome-foreground: var(--chrome-foreground);
+  --color-chrome-muted: var(--chrome-muted);
+  --color-chrome-line: var(--chrome-line);
+  --font-sans: var(--font-bricolage);
+  --radius-sm: 6px;
+  --radius-card: 12px;
+}
+
+/* Tarjeta base: fondo elevado, borde fino, sin sombra. */
+@utility panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+/* Titulares y marcadores: grotesca estrecha y pesada. */
+@utility font-display {
+  font-family: var(--font-bricolage);
+  font-stretch: 75%;
+  font-variation-settings: "opsz" 96;
 }
 
 /*

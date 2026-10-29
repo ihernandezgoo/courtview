@@ -46,11 +46,22 @@ export default function GamePage({ params }: PageProps<"/partidos/[id]">) {
   );
 }
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Section({
+  id,
+  title,
+  boxed = true,
+  children,
+}: {
+  id: string;
+  title: string;
+  /** Envuelve el contenido en una tarjeta; no hace falta si ya trae la suya. */
+  boxed?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <section aria-labelledby={id} className="flex min-w-0 flex-col gap-2">
+    <section aria-labelledby={id} className="flex min-w-0 flex-col">
       <SectionHeading id={id} title={title} />
-      {children}
+      {boxed ? <div className="panel px-4 py-2">{children}</div> : children}
     </section>
   );
 }
@@ -99,9 +110,13 @@ async function Game({ params }: Pick<PageProps<"/partidos/[id]">, "params">) {
         </Link>
         <GameHeader game={game} />
         {anchors.length > 1 && (
-          <nav aria-label="Secciones del partido" className="-mt-2 flex gap-4 overflow-x-auto text-sm">
+          <nav aria-label="Secciones del partido" className="flex gap-2 overflow-x-auto">
             {anchors.map((anchor) => (
-              <a key={anchor.href} href={anchor.href} className="whitespace-nowrap text-accent hover:underline">
+              <a
+                key={anchor.href}
+                href={anchor.href}
+                className="panel whitespace-nowrap px-3 py-1.5 text-xs font-bold uppercase tracking-wider hover:border-accent hover:text-accent"
+              >
                 {anchor.label}
               </a>
             ))}
@@ -119,7 +134,7 @@ async function Game({ params }: Pick<PageProps<"/partidos/[id]">, "params">) {
 
       <div className="grid gap-8 lg:grid-cols-2">
         {started && (
-          <Section id="parciales" title="Parciales">
+          <Section id="parciales" title="Parciales" boxed={false}>
             <LineScore game={game} />
           </Section>
         )}
@@ -134,8 +149,8 @@ async function Game({ params }: Pick<PageProps<"/partidos/[id]">, "params">) {
       </div>
 
       {boxes.length > 0 && (
-        <Section id="box-score" title="Box score">
-          <div className="flex flex-col gap-6">
+        <Section id="box-score" title="Box score" boxed={false}>
+          <div className="flex flex-col gap-4">
             {boxes.map(({ team, box }) => (
               <BoxScoreTable key={team.id} team={team} box={box} />
             ))}
@@ -175,15 +190,15 @@ function GameSkeleton() {
     <div aria-busy aria-label="Cargando partido" className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
         <span className="h-4 w-56 rounded-sm bg-surface" />
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 border-b border-line pb-4">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-card bg-chrome px-4 py-8 sm:px-8">
           {[0, 1].map((side) => (
             <div key={side} className={`flex items-center gap-3 ${side ? "order-3 flex-row-reverse" : ""}`}>
-              <span className="h-12 w-1 rounded-[1px] bg-surface" />
-              <span className="h-5 w-32 rounded-sm bg-surface" />
-              <span className={`h-12 w-16 rounded-sm bg-surface ${side ? "mr-auto" : "ml-auto"}`} />
+              <span className="size-10 rounded-full bg-chrome-raised sm:size-16" />
+              <span className="hidden h-5 w-32 rounded-sm bg-chrome-raised sm:block" />
+              <span className={`h-12 w-16 rounded-sm bg-chrome-raised ${side ? "mr-auto" : "ml-auto"}`} />
             </div>
           ))}
-          <span className="order-2 h-3 w-10 rounded-sm bg-surface" />
+          <span className="order-2 h-6 w-12 rounded-sm bg-chrome-raised" />
         </div>
       </div>
       <div className="flex flex-col gap-2">

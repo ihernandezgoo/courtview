@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { TeamMark } from "@/components/TeamMark";
+import { TeamLogo } from "@/components/TeamMark";
 import {
   formatGameStatus,
   formatRecord,
@@ -10,19 +10,26 @@ import type { Game, GameTeam } from "@/types/game";
 function TeamLine({ team, game }: { team: GameTeam; game: Game }) {
   const decided = game.status.state === "final";
   const lost = decided && !team.winner;
+  const won = decided && team.winner;
 
   return (
-    <div
-      className={`flex h-8 items-center gap-3 ${lost ? "text-muted" : ""} ${
-        decided && team.winner ? "font-semibold" : ""
-      }`}
-    >
-      <TeamMark team={team} />
-      <span className="text-xs tabular-nums text-subtle font-normal">
-        {formatRecord(team.record)}
-      </span>
-      <span className="ml-auto font-score text-xl tabular-nums leading-none">
+    <div className={`flex h-10 items-center gap-3 ${lost ? "text-muted" : ""}`}>
+      <TeamLogo team={team} size={28} />
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className={`truncate text-[15px] ${won ? "font-bold" : "font-semibold"}`} title={team.displayName}>
+          {team.displayName}
+        </span>
+        <span className="text-[11px] tabular-nums text-subtle">
+          {team.abbreviation} · {formatRecord(team.record)}
+        </span>
+      </div>
+      <span
+        className={`font-display ml-auto text-[28px] tabular-nums leading-none ${
+          lost ? "font-semibold" : "font-extrabold"
+        }`}
+      >
         {formatScore(team.score)}
+        {won && <span className="sr-only"> (ganador)</span>}
       </span>
     </div>
   );
@@ -37,17 +44,13 @@ type Props = {
 export function ScoreRow({ game, href = `/partidos/${game.id}`}: Props) {
   const live = game.status.state === "live";
   const label = `${game.away.displayName} en ${game.home.displayName}`;
-  const className = "-mx-2 flex items-center gap-4 px-2 py-1.5";
+  const className = `panel flex flex-col gap-1 px-4 pt-3 pb-2 ${live ? "ring-1 ring-live/60" : ""}`;
 
   const content = (
     <>
-      <div className="flex-1 text-sm">
-        <TeamLine team={game.away} game={game} />
-        <TeamLine team={game.home} game={game} />
-      </div>
       <div
-        className={`flex w-20 items-center justify-end gap-1.5 text-right text-xs tabular-nums ${
-          live ? "font-semibold text-live" : "text-muted"
+        className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider tabular-nums ${
+          live ? "text-live" : "text-muted"
         }`}
       >
         {live && (
@@ -56,16 +59,18 @@ export function ScoreRow({ game, href = `/partidos/${game.id}`}: Props) {
             className="size-1.5 rounded-full bg-live motion-safe:animate-pulse"
           />
         )}
-        {live && <span className="sr-only">En directo:</span>}
+        {live && <span>En directo ·</span>}
         {formatGameStatus(game.status, game.startsAt)}
       </div>
+      <TeamLine team={game.away} game={game} />
+      <TeamLine team={game.home} game={game} />
     </>
   );
 
   return (
-    <li className="border-b border-line">
+    <li>
       {href ? (
-        <Link href={href} aria-label={label} className={`${className} hover:bg-surface`}>
+        <Link href={href} aria-label={label} className={`${className} hover:border-subtle`}>
           {content}
         </Link>
       ) : (

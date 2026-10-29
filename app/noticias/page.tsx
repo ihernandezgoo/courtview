@@ -19,7 +19,7 @@ export default function NewsArchivePage() {
       <SiteHeader current="noticias" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-6 pb-20 md:pb-10">
         <div className="mb-6 flex items-baseline justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">Noticias</h1>
+          <h1 className="font-display text-3xl font-extrabold uppercase leading-none tracking-tight sm:text-4xl">Noticias</h1>
           <div className="flex items-baseline gap-4">
             <RefreshNewsButton />
             <Link href="/" className="text-sm text-accent hover:underline">
@@ -62,7 +62,7 @@ async function Archive() {
             title={formatDay(items[0].publishedAt)}
             meta={`${items.length} ${items.length === 1 ? "noticia" : "noticias"}`}
           />
-          <ol className="divide-y divide-line">
+          <ol className="panel divide-y divide-line px-4">
             {items.map((article) => (
               <ArchiveRow key={article.id} article={article} />
             ))}

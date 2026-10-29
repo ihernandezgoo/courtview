@@ -14,7 +14,7 @@ import {
 import { getScoreboard } from "@/lib/nba";
 import type { Game, GameTeam, Scoreboard } from "@/types/game";
 
-const CELL = "w-40 shrink-0 border-r border-line px-3 py-1.5";
+const CELL = "w-40 shrink-0 border-r border-chrome-line px-3 py-2";
 
 /** Celdas mínimas por copia para que el carrusel llene pantallas anchas. */
 const MIN_CELLS_PER_COPY = 14;
@@ -29,19 +29,19 @@ function StripTeam({ team, game }: { team: GameTeam; game: Game }) {
 
   return (
     <div
-      className={`flex h-6 items-center text-[13px] font-semibold ${lost ? "text-muted" : ""}`}
+      className={`flex h-6 items-center text-[13px] font-bold ${lost ? "text-chrome-muted" : ""}`}
     >
-      <TeamMark team={team} />
+      <TeamMark team={team} onChrome />
       {started ? (
         <span
-          className={`ml-auto font-score text-base tabular-nums leading-none ${
-            lost ? "font-medium" : "font-bold"
+          className={`font-display ml-auto text-lg tabular-nums leading-none ${
+            lost ? "font-medium" : "font-extrabold"
           }`}
         >
           {formatScore(team.score)}
         </span>
       ) : (
-        <span className="ml-auto text-xs font-normal tabular-nums text-muted">
+        <span className="ml-auto text-xs font-normal tabular-nums text-chrome-muted">
           {formatRecord(team.record)}
         </span>
       )}
@@ -54,12 +54,12 @@ function StripGame({ game }: { game: Game }) {
 
   return (
     <li className="shrink-0">
-      <Link href={`/partidos/${game.id}`} className={`block hover:bg-background ${CELL}`}>
+      <Link href={`/partidos/${game.id}`} className={`block hover:bg-chrome-raised ${CELL}`}>
         <StripTeam team={game.away} game={game} />
         <StripTeam team={game.home} game={game} />
         <p
-          className={`mt-0.5 flex items-center gap-1.5 text-[11px] uppercase tracking-wide tabular-nums ${
-            live ? "font-semibold text-live" : "text-muted"
+          className={`mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider tabular-nums ${
+            live ? "text-live" : "text-chrome-muted"
           }`}
         >
           {live && (
@@ -78,9 +78,9 @@ function StripGame({ game }: { game: Game }) {
 
 function DayLabel({ day }: { day: GameDay }) {
   return (
-    <li className="flex w-16 shrink-0 flex-col justify-center border-r border-line bg-background px-2 text-[11px] uppercase tracking-wide">
-      <span className="font-semibold">{day.label}</span>
-      <span className="text-muted">{formatShortDay(day.scoreboard.day)}</span>
+    <li className="flex w-20 shrink-0 flex-col justify-center border-r border-chrome-line bg-accent px-3 text-[11px] uppercase tracking-wider text-accent-foreground">
+      <span className="font-display text-base font-extrabold leading-tight">{day.label}</span>
+      <span className="opacity-85">{formatShortDay(day.scoreboard.day)}</span>
     </li>
   );
 }
@@ -89,7 +89,7 @@ function Strip({ children }: { children: ReactNode }) {
   return (
     <section
       aria-label="Partidos de ayer, hoy y mañana"
-      className="border-b border-line bg-surface"
+      className="border-b border-chrome-line bg-chrome text-chrome-foreground"
     >
       {children}
     </section>
@@ -115,7 +115,7 @@ export async function ScoreStrip() {
   } catch {
     return (
       <Strip>
-        <p className="mx-auto max-w-6xl px-4 py-2 text-xs text-muted">
+        <p className="mx-auto max-w-6xl px-4 py-2 text-xs text-chrome-muted">
           No se han podido cargar los partidos. <RetryButton />
         </p>
       </Strip>
@@ -128,7 +128,7 @@ export async function ScoreStrip() {
     const next = days[2].scoreboard.nextGameDay;
     return (
       <Strip>
-        <p className="mx-auto max-w-6xl px-4 py-2 text-xs text-muted">
+        <p className="mx-auto max-w-6xl px-4 py-2 text-xs text-chrome-muted">
           No hay partidos ni ayer, ni hoy, ni mañana.
           {next && ` Próxima jornada: ${formatDay(next)}.`}
         </p>
@@ -183,12 +183,12 @@ export function ScoreStripSkeleton() {
           <li key={i} className={CELL}>
             {[0, 1].map((line) => (
               <div key={line} className="flex h-6 items-center gap-2">
-                <span className="size-5 rounded-full bg-line" />
-                <span className="h-3 w-9 rounded-sm bg-line" />
-                <span className="ml-auto h-3 w-6 rounded-sm bg-line" />
+                <span className="size-5 rounded-full bg-chrome-raised" />
+                <span className="h-3 w-9 rounded-sm bg-chrome-raised" />
+                <span className="ml-auto h-3 w-6 rounded-sm bg-chrome-raised" />
               </div>
             ))}
-            <span className="mt-1.5 block h-2.5 w-14 rounded-sm bg-line" />
+            <span className="mt-1.5 block h-2.5 w-14 rounded-sm bg-chrome-raised" />
           </li>
         ))}
       </ul>

@@ -53,7 +53,7 @@ export function TeamStatsTable({ game }: { game: GameDetail }) {
     <table className="w-full text-[13px]">
       <caption className="sr-only">Estadísticas de equipo</caption>
       <thead>
-        <tr className="border-b border-foreground">
+        <tr className="border-b border-line">
           <th scope="col" className="h-8 text-left">
             <span className="sr-only">Estadística</span>
           </th>
@@ -75,7 +75,7 @@ export function TeamStatsTable({ game }: { game: GameDetail }) {
           return (
             <tr
               key={row.label}
-              className={row.group ? "border-t border-foreground/30" : "border-t border-line"}
+              className={row.group ? "border-t-2 border-line" : "border-t border-line"}
             >
               <th scope="row" className="h-8 pr-2 text-left font-normal text-muted">
                 {row.label}

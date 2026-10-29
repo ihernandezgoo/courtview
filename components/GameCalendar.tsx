@@ -102,7 +102,7 @@ export function GameCalendar({ selected, month, today, gameDays }: Props) {
               aria-current={isSelected ? "date" : undefined}
               aria-label={`${number}${isToday ? ", hoy" : ""}${hasGames ? ", con partidos" : ""}`}
               className={`${base} font-medium ${
-                isSelected ? "bg-accent text-background" : "hover:bg-surface"
+                isSelected ? "bg-accent text-accent-foreground" : "hover:bg-surface"
               } ${isToday ? "underline underline-offset-4" : ""}`}
             >
               {number}
@@ -110,7 +110,7 @@ export function GameCalendar({ selected, month, today, gameDays }: Props) {
                 <span
                   aria-hidden
                   className={`absolute bottom-1 size-1 rounded-full ${
-                    isSelected ? "bg-background" : "bg-accent"
+                    isSelected ? "bg-accent-foreground" : "bg-accent"
                   }`}
                 />
               )}

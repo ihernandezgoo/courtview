@@ -8,9 +8,13 @@ type Props = {
   lead?: boolean;
 };
 
-function NewsMeta({ article, now }: Omit<Props, "lead">) {
+function NewsMeta({ article, now, onImage }: Omit<Props, "lead"> & { onImage?: boolean }) {
   return (
-    <p className="text-xs text-muted">
+    <p
+      className={`text-[11px] font-bold uppercase tracking-wider ${
+        onImage ? "text-white/80" : "text-muted"
+      }`}
+    >
       {article.byline ?? "ESPN"} · {formatRelative(article.publishedAt, now)}
     </p>
   );
@@ -18,7 +22,7 @@ function NewsMeta({ article, now }: Omit<Props, "lead">) {
 
 function NewsImage({ article, lead }: Omit<Props, "now">) {
   return (
-    <div className="relative aspect-video overflow-hidden rounded-sm bg-surface">
+    <div className={`relative overflow-hidden bg-surface ${lead ? "aspect-[4/3] sm:aspect-[21/9]" : "aspect-video"}`}>
       {article.image && (
         <Image
           src={article.image.url}
@@ -27,7 +31,7 @@ function NewsImage({ article, lead }: Omit<Props, "now">) {
           preload={lead}
           sizes={
             lead
-              ? "(min-width: 1024px) 660px, 100vw"
+              ? "(min-width: 1152px) 1120px, 100vw"
               : "(min-width: 1024px) 270px, (min-width: 640px) 50vw, 100vw"
           }
           className="object-cover"
@@ -39,47 +43,57 @@ function NewsImage({ article, lead }: Omit<Props, "now">) {
 
 export function NewsItem({ article, now, lead }: Props) {
   if (lead) {
+    // Titular sobre la foto, con un velo negro para que se lea.
     return (
-      <article className="group grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8">
-        <a href={article.url} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden>
-          <NewsImage article={article} lead />
-        </a>
-        <div className="flex flex-col justify-center gap-3">
-          <h2 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+      <article className="group relative overflow-hidden rounded-card bg-chrome">
+        <NewsImage article={article} lead />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"
+        />
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-4 text-white sm:max-w-3xl sm:p-6">
+          <span className="self-start rounded-sm bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-foreground">
+            Destacado
+          </span>
+          <h2 className="font-display text-2xl font-extrabold leading-[1.05] tracking-tight sm:text-4xl">
             <a
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group-hover:text-accent"
+              className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-accent group-hover:decoration-2 group-hover:underline-offset-4"
             >
               {article.headline}
             </a>
           </h2>
           {article.description && (
-            <p className="text-sm leading-relaxed text-muted">{article.description}</p>
+            <p className="hidden text-sm leading-relaxed text-white/80 sm:line-clamp-2">
+              {article.description}
+            </p>
           )}
-          <NewsMeta article={article} now={now} />
+          <NewsMeta article={article} now={now} onImage />
         </div>
       </article>
     );
   }
 
   return (
-    <article className="group flex flex-col gap-2">
-      <a href={article.url} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden>
-        <NewsImage article={article} />
-      </a>
-      <h3 className="text-sm font-semibold leading-snug">
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group-hover:text-accent"
-        >
-          {article.headline}
-        </a>
-      </h3>
-      <NewsMeta article={article} now={now} />
+    <article className="panel group relative flex flex-col overflow-hidden hover:border-subtle">
+      <NewsImage article={article} />
+      <div className="flex flex-1 flex-col gap-2 p-3">
+        <h3 className="text-[15px] font-bold leading-snug">
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="after:absolute after:inset-0 group-hover:text-accent"
+          >
+            {article.headline}
+          </a>
+        </h3>
+        <div className="mt-auto">
+          <NewsMeta article={article} now={now} />
+        </div>
+      </div>
     </article>
   );
 }

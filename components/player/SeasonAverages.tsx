@@ -31,23 +31,23 @@ export function SeasonAverages({
   ranks: Record<string, StatRank>;
 }) {
   return (
-    <dl className="grid grid-cols-3 gap-x-4 gap-y-4 sm:grid-cols-6">
+    <dl className="grid grid-cols-3 gap-2 sm:grid-cols-6">
       {STATS.map((stat) => {
         const rank = ranks[stat.key];
         return (
-          <div key={stat.key} className="flex flex-col">
-            <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+          <div key={stat.key} className="panel flex flex-col gap-1.5 px-3 py-3">
+            <dt className="text-[11px] font-bold uppercase tracking-wider text-accent">
               <abbr title={stat.title} className="no-underline">
                 {stat.label}
               </abbr>
             </dt>
-            <dd className="font-score text-4xl font-bold leading-none tabular-nums">
+            <dd className="font-display text-4xl font-extrabold leading-none tabular-nums">
               {stat.attempts
                 ? formatPctValue(averages[stat.key], averages[stat.attempts])
                 : formatStat(averages[stat.key])}
             </dd>
             {rank && (
-              <dd className="mt-1 text-xs text-muted tabular-nums">{formatRank(rank)} en la NBA</dd>
+              <dd className="text-[11px] text-muted tabular-nums">{formatRank(rank)} en la NBA</dd>
             )}
           </div>
         );

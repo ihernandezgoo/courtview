@@ -37,17 +37,17 @@ const COLUMNS: Column[] = [
   { label: "PF", title: "Faltas personales", format: stat("fouls"), divider: true },
 ];
 
-const STICKY = "sticky left-0 z-10 bg-background";
+const STICKY = "sticky left-0 z-10 bg-card";
 const CELL = "h-9 px-2 text-right tabular-nums whitespace-nowrap";
 const HEAD = "h-8 px-2 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap text-muted";
 
 export function PlayerGameLog({ games, caption }: { games: PlayerGame[]; caption: string }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="panel overflow-x-auto">
       <table className="w-full text-[13px]">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="border-b border-foreground">
+          <tr className="border-b border-line">
             <th scope="col" className={`${STICKY} ${HEAD} pl-2 text-left`}>
               Fecha
             </th>

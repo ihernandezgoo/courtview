@@ -53,7 +53,7 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const STICKY = "sticky left-0 z-10 bg-background";
+const STICKY = "sticky left-0 z-10 bg-card";
 const CELL = "h-9 px-2 text-right tabular-nums whitespace-nowrap";
 
 type Props = {
@@ -69,11 +69,11 @@ export function StandingsTable({ rows, caption, cutoffs = false }: Props) {
   if (!leader) return null;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="panel overflow-x-auto">
       <table className="w-full text-[13px]">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="border-b border-foreground">
+          <tr className="border-b border-line">
             <th scope="col" className={`${STICKY} h-8 w-8 pl-2 text-right text-[11px] font-semibold text-muted`}>
               <abbr title="Puesto" className="no-underline">
                 #
@@ -81,7 +81,7 @@ export function StandingsTable({ rows, caption, cutoffs = false }: Props) {
             </th>
             <th
               scope="col"
-              className="sticky left-8 z-10 h-8 bg-background pr-3 pl-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted"
+              className="sticky left-8 z-10 h-8 bg-card pr-3 pl-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted"
             >
               Equipo
             </th>
@@ -115,7 +115,7 @@ export function StandingsTable({ rows, caption, cutoffs = false }: Props) {
                 </td>
                 <th
                   scope="row"
-                  className="sticky left-8 z-10 h-9 bg-background pr-3 pl-3 text-left font-medium whitespace-nowrap group-hover:bg-surface"
+                  className="sticky left-8 z-10 h-9 bg-card pr-3 pl-3 text-left font-medium whitespace-nowrap group-hover:bg-surface"
                 >
                   <span className="flex items-center gap-2">
                     <TeamMark team={row.team} />

@@ -17,7 +17,7 @@ function LeaderCell({ leader }: { leader: GameLeader | undefined }) {
   return (
     <td className="py-2 pr-3 align-top">
       <div className="flex items-baseline gap-2">
-        <span className="font-score text-2xl font-bold tabular-nums leading-none">
+        <span className="font-display text-2xl font-bold tabular-nums leading-none">
           {leader.value}
         </span>
         <Link

@@ -79,12 +79,12 @@ async function StandingsView({ searchParams }: Pick<PageProps<"/clasificacion">,
 function Title({ season, view }: { season: string | null; view: View }) {
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="font-display text-3xl font-extrabold uppercase leading-none tracking-tight sm:text-4xl">
         Clasificación{" "}
         {season && <span className="font-normal text-muted tabular-nums">{season}</span>}
       </h1>
       <nav aria-label="Agrupar por">
-        <ul className="flex border-b border-line">
+        <ul className="panel flex p-1">
           {VIEWS.map((v) => (
             <li key={v.id}>
               <Link
@@ -92,8 +92,8 @@ function Title({ season, view }: { season: string | null; view: View }) {
                 aria-current={v.id === view ? "page" : undefined}
                 className={
                   v.id === view
-                    ? "relative flex h-9 items-center px-3 text-sm font-medium text-foreground after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:bg-accent"
-                    : "flex h-9 items-center px-3 text-sm font-medium text-muted hover:text-foreground"
+                    ? "flex h-8 items-center rounded-sm bg-accent px-3 text-xs font-bold uppercase tracking-wider text-accent-foreground"
+                    : "flex h-8 items-center rounded-sm px-3 text-xs font-bold uppercase tracking-wider text-muted hover:text-foreground"
                 }
               >
                 {v.label}
@@ -129,7 +129,7 @@ function DivisionView({ standings }: { standings: Standing[] }) {
     <div className="flex flex-col gap-12">
       {CONFERENCES.map((conference) => (
         <div key={conference.id} className="flex flex-col gap-6">
-          <h2 className="text-lg font-semibold tracking-tight">{conference.label}</h2>
+          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">{conference.label}</h2>
           {DIVISIONS[conference.id].map((division) => {
             const rows = standings.filter((s) => s.division === division);
             if (rows.length === 0) return null;

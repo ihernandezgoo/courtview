@@ -18,7 +18,7 @@ export default function LeadersPage() {
     <>
       <SiteHeader current="lideres" />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-20 md:pb-10">
-        <h1 className="mb-6 text-2xl font-semibold tracking-tight">Líderes estadísticos</h1>
+        <h1 className="font-display mb-6 text-3xl font-extrabold uppercase leading-none tracking-tight sm:text-4xl">Líderes estadísticos</h1>
         <Suspense fallback={<LeadersSkeleton />}>
           <Leaders />
         </Suspense>
@@ -57,13 +57,13 @@ function CategoryList({ category }: { category: LeaderCategory }) {
   return (
     <section aria-labelledby={id} className="flex flex-col">
       <SectionHeading id={id} title={category.label} meta={category.abbreviation} />
-      <ol>
+      <ol className="panel overflow-hidden">
         {category.leaders.map((leader, i) => {
           const first = leader.rank === 1;
           return (
             <li
               key={leader.athlete.id}
-              className={`grid h-8 grid-cols-[1.5rem_minmax(0,1fr)_auto_3.5rem] items-center gap-2 border-b border-line text-[13px] ${
+              className={`grid h-9 grid-cols-[1.5rem_minmax(0,1fr)_auto_3.5rem] items-center gap-2 border-b border-line px-3 text-[13px] last:border-b-0 ${
                 first ? "bg-leader" : ""
               }`}
             >
@@ -79,7 +79,7 @@ function CategoryList({ category }: { category: LeaderCategory }) {
                 )}
               </span>
               <span className="text-xs text-muted">{leader.team && <TeamMark team={leader.team} />}</span>
-              <span className={`pr-2 text-right tabular-nums ${first ? "font-semibold" : ""}`}>
+              <span className={`text-right tabular-nums ${first ? "font-display text-base font-extrabold text-accent" : ""}`}>
                 {formatLeaderValue(leader.value, category.kind)}
               </span>
             </li>

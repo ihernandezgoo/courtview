@@ -43,7 +43,7 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const STICKY = "sticky left-0 z-10 bg-background";
+const STICKY = "sticky left-0 z-10 bg-card";
 const CELL = "h-9 px-2 text-right tabular-nums whitespace-nowrap";
 const HEAD = "h-8 px-2 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap text-muted";
 
@@ -58,11 +58,11 @@ function StatCells({ stats }: { stats: StatLine }) {
 /** Promedios por temporada en temporada regular, con la carrera al final. */
 export function PlayerSeasonsTable({ seasons, career }: { seasons: PlayerSeason[]; career: StatLine | null }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="panel overflow-x-auto">
       <table className="w-full text-[13px]">
         <caption className="sr-only">Promedios por temporada</caption>
         <thead>
-          <tr className="border-b border-foreground">
+          <tr className="border-b border-line">
             <th scope="col" className={`${STICKY} ${HEAD} pl-2 text-left`}>
               Temporada
             </th>
@@ -109,7 +109,7 @@ export function PlayerSeasonsTable({ seasons, career }: { seasons: PlayerSeason[
         </tbody>
         {career && (
           <tfoot>
-            <tr className="border-t border-foreground font-semibold">
+            <tr className="border-t-2 border-line font-bold">
               <th scope="row" className={`${STICKY} h-9 pr-3 pl-2 text-left`}>
                 Carrera
               </th>

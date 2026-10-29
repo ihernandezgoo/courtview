@@ -46,7 +46,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
+    <section aria-labelledby={id} className="flex min-w-0 flex-col">
       <SectionHeading id={id} title={title} meta={meta} />
       {children}
     </section>
@@ -130,7 +130,7 @@ async function Player({ params }: Pick<PageProps<"/jugadores/[id]">, "params">) 
 function PlayerSkeleton() {
   return (
     <div aria-busy aria-label="Cargando jugador" className="flex flex-col gap-8">
-      <div className="flex items-end gap-4 border-b border-line pb-3">
+      <div className="flex items-end gap-4 rounded-card bg-chrome px-4 pt-5 pb-5 sm:px-6">
         <div className="hidden h-[76px] w-[104px] rounded-sm bg-surface sm:block" />
         <div className="flex flex-col gap-2">
           <span className="h-8 w-56 rounded-sm bg-surface" />

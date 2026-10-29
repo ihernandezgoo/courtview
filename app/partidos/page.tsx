@@ -87,7 +87,7 @@ async function GameDay({ searchParams }: Pick<PageProps<"/partidos">, "searchPar
       </div>
 
       <section aria-labelledby="jornada" className="flex flex-col gap-3">
-        <h2 id="jornada" className="text-lg font-semibold tracking-tight first-letter:uppercase">
+        <h2 id="jornada" className="font-display text-3xl font-extrabold leading-none tracking-tight first-letter:uppercase sm:text-4xl">
           {formatGameNight(day)}
         </h2>
 
@@ -111,7 +111,7 @@ async function GameDay({ searchParams }: Pick<PageProps<"/partidos">, "searchPar
             )}
           </p>
         ) : (
-          <ul className="grid gap-x-10 md:grid-cols-2">
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {games.map((game) => (
               <ScoreRow key={game.id} game={game} />
             ))}
@@ -129,7 +129,7 @@ function GamesSkeleton() {
         <span className="mx-auto h-8 w-40 rounded-sm bg-surface" />
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
           {Array.from({ length: 7 }, (_, i) => (
-            <span key={i} className="h-[4.5rem] rounded-md border border-line" />
+            <span key={i} className="h-[4.5rem] rounded-card border border-line bg-card" />
           ))}
         </div>
         <span className="mx-auto h-7 w-44 rounded-sm bg-surface" />
@@ -137,14 +137,15 @@ function GamesSkeleton() {
       <div className="flex flex-col gap-3">
         <span className="h-8 w-2/3 rounded-sm bg-surface" />
         <SectionHeading title="Cargando" />
-        <ul className="grid gap-x-10 md:grid-cols-2">
-          {Array.from({ length: 8 }, (_, i) => (
-            <li key={i} className="flex flex-col gap-1 border-b border-line py-2.5">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <li key={i} className="panel flex flex-col gap-1 px-4 pt-3 pb-2">
+              <span className="h-3 w-16 rounded-sm bg-surface" />
               {[0, 1].map((line) => (
-                <div key={line} className="flex h-6 items-center gap-3">
-                  <span className="size-5 rounded-full bg-surface" />
-                  <span className="h-3 w-10 rounded-sm bg-surface" />
-                  <span className="ml-auto h-4 w-8 rounded-sm bg-surface" />
+                <div key={line} className="flex h-10 items-center gap-3">
+                  <span className="size-7 rounded-full bg-surface" />
+                  <span className="h-3.5 w-32 rounded-sm bg-surface" />
+                  <span className="ml-auto h-6 w-10 rounded-sm bg-surface" />
                 </div>
               ))}
             </li>

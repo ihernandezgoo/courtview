@@ -44,7 +44,7 @@ const COLUMNS: Column[] = [
   { label: "+/-", title: "Más/menos: diferencia de puntos con el jugador en pista", format: (s) => formatSigned(s.plusMinus), rank: num("plusMinus") },
 ];
 
-const STICKY = "sticky left-0 z-10 bg-background";
+const STICKY = "sticky left-0 z-10 bg-card";
 const CELL = "h-9 px-2 text-right tabular-nums whitespace-nowrap";
 
 /** Máximo de cada columna entre los que han jugado; `null` si no hay nada que destacar. */
@@ -133,12 +133,15 @@ export function BoxScoreTable({ team, box }: { team: GameTeam; box: TeamBoxScore
   const maxima = columnMaxima(box.players.filter((p) => !p.didNotPlay));
 
   return (
-    <div className="overflow-x-auto">
+    <div
+      className="panel overflow-x-auto"
+      style={{ borderTopWidth: 4, ...(team.color ? { borderTopColor: `#${team.color}` } : {}) }}
+    >
       <table className="w-full text-[13px]">
         <caption className="sr-only">Estadísticas de los jugadores de {team.displayName}</caption>
         <thead>
-          <tr className="border-b border-foreground">
-            <th scope="col" className={`${STICKY} h-8 pr-3 pl-2 text-left`}>
+          <tr className="border-b border-line">
+            <th scope="col" className={`${STICKY} h-10 pr-3 pl-2 text-left font-bold`}>
               <TeamMark team={team} />
             </th>
             {COLUMNS.map((column) => (
@@ -173,7 +176,7 @@ export function BoxScoreTable({ team, box }: { team: GameTeam; box: TeamBoxScore
           ))}
         </tbody>
         <tfoot>
-          <tr className="border-t border-foreground font-semibold">
+          <tr className="border-t-2 border-line font-bold">
             <th scope="row" className={`${STICKY} h-9 pr-3 pl-2 text-left`}>
               Totales
             </th>

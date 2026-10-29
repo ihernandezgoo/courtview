@@ -43,7 +43,7 @@ export function WeekStrip({ selected, today, gameDays }: Props) {
         <Link href={`/partidos?fecha=${shiftDay(selected, -7)}`} aria-label="Semana anterior" className={ARROW}>
           <ChevronLeft size={16} strokeWidth={1.75} />
         </Link>
-        <p className="min-w-32 text-center text-sm font-medium text-muted">
+        <p className="font-display min-w-32 text-center text-base font-extrabold uppercase tracking-tight first-letter:uppercase">
           {formatMonth(selected.slice(0, 7))}
         </p>
         <Link href={`/partidos?fecha=${shiftDay(selected, 7)}`} aria-label="Semana siguiente" className={ARROW}>
@@ -58,19 +58,19 @@ export function WeekStrip({ selected, today, gameDays }: Props) {
           const hasGames = withGames.has(day);
           const content = (
             <>
-              <span className={`text-xs ${isSelected ? "" : "text-muted"}`}>{formatWeekday(day)}</span>
-              <span className="text-lg font-semibold tabular-nums leading-none">
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? "" : "text-muted"}`}>{formatWeekday(day)}</span>
+              <span className="font-display text-2xl font-extrabold tabular-nums leading-none">
                 {Number(day.slice(8))}
               </span>
               <span
                 aria-hidden
                 className={`size-1.5 rounded-full ${
-                  hasGames ? (isSelected ? "bg-background" : "bg-accent") : "bg-transparent"
+                  hasGames ? (isSelected ? "bg-accent-foreground" : "bg-accent") : "bg-transparent"
                 }`}
               />
             </>
           );
-          const base = `flex h-[4.5rem] flex-col items-center justify-center gap-1.5 rounded-md border ${
+          const base = `flex h-[4.5rem] flex-col items-center justify-center gap-1.5 rounded-card border ${
             isToday && !isSelected ? "border-foreground" : "border-line"
           }`;
           const label = `${formatDay(`${day}T12:00:00Z`, "UTC")}${isToday ? ", hoy" : ""}${
@@ -85,8 +85,8 @@ export function WeekStrip({ selected, today, gameDays }: Props) {
                 aria-label={label}
                 className={`${base} ${
                   isSelected
-                    ? "border-accent bg-accent text-background"
-                    : `hover:border-subtle hover:bg-surface ${hasGames ? "" : "text-subtle"}`
+                    ? "border-accent bg-accent text-accent-foreground"
+                    : `bg-card hover:border-subtle ${hasGames ? "" : "text-subtle"}`
                 }`}
               >
                 {content}

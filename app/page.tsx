@@ -28,11 +28,6 @@ export default function NbaHome() {
           <News />
         </Suspense>
       </main>
-      <footer className="border-t border-line pb-14 md:pb-0">
-        <p className="mx-auto max-w-6xl px-4 py-3 text-xs text-muted">
-          Resultados, noticias, equipos y jugadores de la NBA. Noticias de ESPN.
-        </p>
-      </footer>
     </>
   );
 }
@@ -75,14 +70,14 @@ async function News() {
           meta={`Actualizado ${formatRelative(news.fetchedAt, now)}`}
           action={<RefreshNewsButton />}
         />
-        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {rest.map((article) => (
             <NewsItem key={article.id} article={article} now={now} />
           ))}
         </div>
         <Link
           href="/noticias"
-          className="self-start border-t border-line pt-3 text-sm font-medium text-accent hover:underline"
+          className="self-start rounded-sm bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-accent-foreground hover:opacity-90"
         >
           Ver todas las noticias
         </Link>
@@ -94,23 +89,16 @@ async function News() {
 function NewsSkeleton() {
   return (
     <div aria-busy aria-label="Cargando noticias" className="flex flex-col gap-8">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-8">
-        <div className="aspect-video rounded-sm bg-surface" />
-        <div className="flex flex-col justify-center gap-3">
-          <span className="h-7 w-full rounded-sm bg-surface" />
-          <span className="h-7 w-3/4 rounded-sm bg-surface" />
-          <span className="h-3 w-32 rounded-sm bg-surface" />
-        </div>
-      </div>
+      <div className="aspect-[4/3] rounded-card bg-surface sm:aspect-[21/9]" />
       <div className="flex flex-col gap-4">
         <SectionHeading title="Últimas noticias" />
-        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }, (_, i) => (
-            <div key={i} className="flex flex-col gap-2">
-              <div className="aspect-video rounded-sm bg-surface" />
-              <span className="h-3.5 w-full rounded-sm bg-surface" />
-              <span className="h-3.5 w-2/3 rounded-sm bg-surface" />
-              <span className="h-3 w-24 rounded-sm bg-surface" />
+            <div key={i} className="panel flex flex-col gap-2 overflow-hidden pb-3">
+              <div className="aspect-video bg-surface" />
+              <span className="mx-3 h-3.5 rounded-sm bg-surface" />
+              <span className="mx-3 h-3.5 w-2/3 rounded-sm bg-surface" />
+              <span className="mx-3 h-3 w-24 rounded-sm bg-surface" />
             </div>
           ))}
         </div>

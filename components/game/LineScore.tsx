@@ -14,7 +14,7 @@ export function LineScore({ game }: { game: GameDetail }) {
   ];
 
   return (
-    <div className="overflow-x-auto">
+    <div className="panel overflow-x-auto">
       <table className="w-full text-[13px]">
         <caption className="sr-only">Puntos por cuarto</caption>
         <thead>
@@ -49,7 +49,7 @@ export function LineScore({ game }: { game: GameDetail }) {
                   );
                 })}
                 <td
-                  className={`${TD} font-score text-lg leading-none ${
+                  className={`${TD} font-display text-lg leading-none ${
                     lost ? "font-medium" : "font-bold"
                   }`}
                 >
